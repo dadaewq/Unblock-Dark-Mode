@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory>
+        <Preference
+            app:icon="@drawable/ic_warnning"
+            app:key="check_xfeature"
+            app:title="Xposed 当前未生效" />
+        <Preference
+            app:icon="@drawable/ic_url"
+            app:key="view_hook_config"
+            app:title="查看自定义配置集合" />
+        <Preference
+            app:icon="@drawable/ic_update"
+            app:key="update_hook_config"
+            app:title="从云端更新自定义配置" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="应用设置">
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:key="x_coolapk"
+            app:summary="设置-界面显示-夜间模式跟随系统"
+            app:title="酷安" />
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:key="x_dingtalk"
+            app:summary="设置-通用-深色主题设置-跟随系统"
+            app:title="钉钉" />
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:key="x_mobileqq"
+            app:summary="设置-通用-跟随系统深色模式"
+            app:title="QQ" />
+        <Preference
+            app:icon="@drawable/ic_qq"
+            app:key="x_mobileqq_config" />
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:key="x_wechat"
+            app:summary="强制跟随系统深色模式\n或解除相关限制"
+            app:title="微信" />
+        <Preference
+            app:icon="@drawable/ic_wechat"
+            app:key="x_wechat_config" />
+        <SwitchPreferenceCompat
+            app:key="x_wechat_hookBrand"
+            app:title="微信内修改设备品牌" />
+        <Preference
+            app:key="x_wechat_hookBrand_config"
+            app:title="微信内修改设备品牌" />
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:key="x_iflytek_input"
+            app:summary="默认皮肤强制跟随系统深色模式"
+            app:title="讯飞输入法" />
+        <Preference app:key="x_iflytek_input_config" />
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:key="x_caij_see"
+            app:summary="设置-阅读习惯-夜间模式设置-跟随系统"
+            app:title="See(微博)" />
+        <Preference app:key="x_caij_see_config" />
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:isPreferenceVisible="false"
+            app:key="x_gboard"
+            app:summary="强制Gboard默认皮肤跟随系统"
+            app:title="Gboard" />
+        <Preference
+            app:isPreferenceVisible="false"
+            app:key="x_gboard_config"
+            app:title="自定义Gboard" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

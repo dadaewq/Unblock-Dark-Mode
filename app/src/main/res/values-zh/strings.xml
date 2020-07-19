@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">解锁深色模式</string>
+    <string name="check_xfeature_ok">Xposed 已生效</string>
+
+</resources>

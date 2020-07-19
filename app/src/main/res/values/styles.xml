@@ -1,0 +1,10 @@
+<resources>
+
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.Dialog">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:colorBackground">@color/Background</item>
+        <item name="colorAccent">@color/rBackground</item>
+    </style>
+
+</resources>

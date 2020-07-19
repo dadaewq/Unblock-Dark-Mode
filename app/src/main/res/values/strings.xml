@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Unblock Dark Mode</string>
+    <string name="xposeddescription" translatable="false">解除部分应用对跟随系统深色模式的限制，目前支持酷安、钉钉、QQ、微信、讯飞输入法和See。(部分需要自定义配置)</string>
+    <string name="check_xfeature_ok">Xposed is in effect</string>
+    <string name="title_custom" translatable="false">配置%s %s</string>
+</resources>
