@@ -39,7 +39,7 @@ public class SpUtil {
         return sharedPreferences.getBoolean(key, false);
     }
 
-    void putBoolean(String key, boolean value) {
+    public void putBoolean(String key, boolean value) {
         editor = sharedPreferences.edit();
         editor.putBoolean(key, value);
         editor.apply();

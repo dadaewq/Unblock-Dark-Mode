@@ -22,6 +22,7 @@ import com.modosa.unblockdarkmode.util.Constants;
 import com.modosa.unblockdarkmode.util.OpUtil;
 import com.modosa.unblockdarkmode.util.SpUtil;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -328,6 +329,38 @@ public class XFeatureFragment extends PreferenceFragmentCompat implements Prefer
                     }
                 }
 
+                try {
+                    if (spUtil.getBoolean("x_wechat", true) && AppInfoUtil.getAppVersion(context, "com.tencent.mm").compareTo("7.0.17") >= 0) {
+                        JSONObject jsonObject1 = (JSONObject) ((JSONObject) obconfigs).get("com.tencent.mm_hookbrand");
+                        if (jsonObject1 != null) {
+                            String brand = jsonObject1.getString("brand");
+                            int sdk = Build.VERSION.SDK_INT;
+                            if (brand != null
+                                    && sdk >= jsonObject1.getInt("minsdk")
+                                    && sdk <= jsonObject1.getInt("maxsdk")
+                            ) {
+                                JSONArray limits = jsonObject1.getJSONArray("limits");
+                                String myBrnad = Build.BRAND.toLowerCase();
+                                String myConfigBrnad = spUtil.getString("x_wechat_hookBrand_config", "");
+                                boolean ishookBrand = spUtil.getBoolean("x_wechat_hookBrand", false);
+                                boolean ok = false;
+                                for (int i = 0; i < limits.length(); i++) {
+                                    String limit = limits.get(i).toString();
+                                    if ((!ishookBrand && myBrnad.contains(limit)) || (ishookBrand && myConfigBrnad.contains(limit))) {
+                                        ok = true;
+                                    }
+                                }
+                                if (ok) {
+                                    spUtil.putBoolean("x_wechat_hookBrand", true);
+                                    spUtil.putString("x_wechat_hookBrand_config", brand);
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
             } catch (Exception e) {
                 e.printStackTrace();
                 msg.arg1 = 6;
@@ -533,6 +566,11 @@ public class XFeatureFragment extends PreferenceFragmentCompat implements Prefer
             XFeatureFragment xFeatureFragment = wrFragment.get();
 
             if (msg.arg1 == 9) {
+                if (xFeatureFragment.spUtil.getFalseBoolean("x_wechat_hookBrand")) {
+                    ((SwitchPreferenceCompat) xFeatureFragment.findPreference("x_wechat_hookBrand")).setChecked(true);
+                    (xFeatureFragment.findPreference("x_wechat_hookBrand_config")).setVisible(true);
+                }
+
                 OpUtil.showToast0(xFeatureFragment.context, "成功更新" + xFeatureFragment.successNumber + "项自定义配置");
                 xFeatureFragment.refresh();
             } else if (msg.arg1 == 6) {
