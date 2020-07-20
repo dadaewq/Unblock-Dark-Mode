@@ -126,15 +126,6 @@ public class XFeatureFragment extends PreferenceFragmentCompat implements Prefer
                 return true;
             });
 
-
-//                findPreference(key).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-//                    @Override
-//                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-//                        findPreference(hashMap.get(key)).setVisible((boolean)newValue);
-//                        return true;
-//                    }
-//                });
-
         }
 
 
@@ -426,13 +417,7 @@ public class XFeatureFragment extends PreferenceFragmentCompat implements Prefer
         alertDialog = builder.create();
         OpUtil.showAlertDialog(context, alertDialog);
 
-        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-//            String value = valueOfpreferenceKey.getText().toString().replaceAll("\\s*", "").replace("：", ":")
-//
-//            valueOfpreferenceKey.setText(value);
-//
-            opPreferenceValueFromDialog(preferenceKey, valueOfpreferenceKey.getText().toString(), AlertDialog.BUTTON_POSITIVE);
-        });
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> opPreferenceValueFromDialog(preferenceKey, valueOfpreferenceKey.getText().toString(), AlertDialog.BUTTON_POSITIVE));
         alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v -> valueOfpreferenceKey.setText(null));
         alertDialog.setOnDismissListener(dialog -> {
             if (isOpSuccess) {
