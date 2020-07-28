@@ -45,8 +45,7 @@
         <SwitchPreferenceCompat
             app:key="x_wechat_hookBrand"
             app:title="微信内修改设备品牌" />
-        <Preference
-            app:key="x_wechat_hookBrand_config" />
+        <Preference app:key="x_wechat_hookBrand_config" />
         <SwitchPreferenceCompat
             app:defaultValue="true"
             app:key="x_iflytek_input"

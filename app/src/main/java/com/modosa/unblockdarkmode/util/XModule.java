@@ -112,7 +112,7 @@ public class XModule implements IXposedHookLoadPackage {
 
     private void hookBrand(String brand) {
         try {
-            XposedHelpers.setStaticObjectField(android.os.Build.class, "BRAND", brand);
+            XposedHelpers.setStaticObjectField(Build.class, "BRAND", brand);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -143,13 +143,7 @@ public class XModule implements IXposedHookLoadPackage {
 
     private void hookCoolapk() {
 
-        boolean useHook = true;
-
-        if (sharedPreferences != null && !sharedPreferences.getBoolean("x_coolapk", true)) {
-            useHook = false;
-        }
-
-        if (useHook) {
+        if (sharedPreferences != null && sharedPreferences.getBoolean("x_coolapk", true)) {
             try {
                 findAndHookMethod("com.coolapk.market.AppSetting", loadPackageParam.classLoader,
                         "shouldDisableXposed",
@@ -177,13 +171,7 @@ public class XModule implements IXposedHookLoadPackage {
 
     private void hookDingTalk() {
 
-        boolean useHook = true;
-
-        if (sharedPreferences != null && !sharedPreferences.getBoolean("x_dingtalk", true)) {
-            useHook = false;
-        }
-
-        if (useHook) {
+        if (sharedPreferences != null && sharedPreferences.getBoolean("x_dingtalk", true)) {
             try {
                 findAndHookMethod("com.alibaba.android.dingtalkui.dark.ThemeHelper", loadPackageParam.classLoader,
                         "d",
@@ -237,7 +225,7 @@ public class XModule implements IXposedHookLoadPackage {
                             if (splits.length >= 2) {
                                 String className = splits[0];
                                 String[] methodNames = splits[1].split(",");
-                                //只有当自定义的配置没有明显错误的时候才不不适用默认的Hook
+                                //只有当自定义的配置没有明显错误的时候才不使用默认的Hook
                                 hookReturnBooleanWithmethodNames(loadPackageParam.classLoader, className, methodNames, true);
                             }
                         }

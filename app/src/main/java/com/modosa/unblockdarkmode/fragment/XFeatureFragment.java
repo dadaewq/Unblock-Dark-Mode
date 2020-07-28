@@ -139,10 +139,9 @@ public class XFeatureFragment extends PreferenceFragmentCompat implements Prefer
         }
 
         // Preference "x_wechat_hookBrand"
-        if(Build.VERSION.SDK_INT<=Build.VERSION_CODES.N_MR1){
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N_MR1) {
             findPreference("x_wechat_hookBrand").setSummary("建议您打开此项并将自定义品牌留空以达到最佳效果");
         }
-
 
 
         update_hook_config.setOnPreferenceClickListener(this);
