@@ -39,7 +39,7 @@ import java.util.concurrent.Executors;
  */
 @SuppressWarnings("ConstantConditions")
 public class XFeatureFragment extends PreferenceFragmentCompat implements Preference.OnPreferenceClickListener {
-    private final String[] preference_keys = new String[]{"x_mobileqq_config", "x_wechat_config", "x_iflytek_input_config", "x_caij_see_config", "x_wechat_hookBrand_config"};
+    private final String[] preference_keys = new String[]{"x_mobileqq_config", "x_wechat_config", "x_iflytek_input_config", "x_caij_see_config", "x_gboard_config", "x_wechat_hookBrand_config"};
     private Context context;
     private SpUtil spUtil;
     private Preference update_hook_config;
@@ -47,6 +47,7 @@ public class XFeatureFragment extends PreferenceFragmentCompat implements Prefer
 
     private boolean isOpSuccess = false;
     private AlertDialog alertDialog;
+    private EditText valueOfpreferenceKey;
 
     private MyHandler mHandler;
     private int successNumber = 0;
@@ -96,12 +97,13 @@ public class XFeatureFragment extends PreferenceFragmentCompat implements Prefer
             }
         }
 
-        HashMap<String, String> hashMap = new HashMap<>(4);
+        HashMap<String, String> hashMap = new HashMap<>(6);
         hashMap.put("x_mobileqq", "x_mobileqq_config");
         hashMap.put("x_wechat", "x_wechat_config");
         hashMap.put("x_wechat_hookBrand", "x_wechat_hookBrand_config");
         hashMap.put("x_iflytek_input", "x_iflytek_input_config");
         hashMap.put("x_caij_see", "x_caij_see_config");
+        hashMap.put("x_gboard", "x_gboard_config");
 
         //设置图标
 //        Drawable drawable;
@@ -174,15 +176,16 @@ public class XFeatureFragment extends PreferenceFragmentCompat implements Prefer
 
     private void setTitle() {
 
-        String[] hashMaps = new String[]{Constants.PACKAGE_NAME_MOBILEQQ, Constants.PACKAGE_NAME_WECHAT, Constants.PACKAGE_NAME_FLYTEK_INPUTMETHOD, Constants.PACKAGE_NAME_CAIJ_SEE};
-        String[] lable = new String[]{"QQ", "微信", "讯飞输入法", "See"};
+        String[] packageNames = new String[]{Constants.PACKAGE_NAME_MOBILEQQ, Constants.PACKAGE_NAME_WECHAT, Constants.PACKAGE_NAME_FLYTEK_INPUTMETHOD, Constants.PACKAGE_NAME_CAIJ_SEE, Constants.PACKAGE_NAME_GBOARD};
+        String[] lables = new String[]{"QQ", "微信", "讯飞输入法", "See", "Gboard"};
 
+        int versionsCount = 2;
         String getAppVersion;
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < versionsCount; i++) {
             try {
-                getAppVersion = AppInfoUtil.getAppVersions(context, hashMaps[i]);
+                getAppVersion = AppInfoUtil.getAppVersions(context, packageNames[i]);
                 preferences[i].setTitle(String.format(getString(R.string.title_custom),
-                        lable[i],
+                        lables[i],
                         getAppVersion == null ?
                                 (Build.VERSION.SDK_INT < Build.VERSION_CODES.R ? "（未安装）" : "") :
                                 getAppVersion)
@@ -191,11 +194,11 @@ public class XFeatureFragment extends PreferenceFragmentCompat implements Prefer
                 e.printStackTrace();
             }
         }
-        for (int i = 2; i < 4; i++) {
+        for (int i = versionsCount; i < lables.length; i++) {
             try {
-                getAppVersion = AppInfoUtil.getAppVersion(context, hashMaps[i]);
+                getAppVersion = AppInfoUtil.getAppVersion(context, packageNames[i]);
                 preferences[i].setTitle(String.format(getString(R.string.title_custom),
-                        lable[i],
+                        lables[i],
                         getAppVersion == null ?
                                 (Build.VERSION.SDK_INT < Build.VERSION_CODES.R ? "（未安装）" : "") :
                                 getAppVersion)
@@ -209,6 +212,7 @@ public class XFeatureFragment extends PreferenceFragmentCompat implements Prefer
         preferences[lastindex].setTitle("自定义品牌：" + spUtil.getString(preference_keys[lastindex], ""));
     }
 
+    @SuppressWarnings("SameReturnValue")
     @Keep
     private boolean hook2ReturnTrue() {
 //        如果需要hook，不要注释下一行
@@ -256,9 +260,8 @@ public class XFeatureFragment extends PreferenceFragmentCompat implements Prefer
             case "x_caij_see_config":
                 showDialogCaijSeeHook(preferenceKey);
                 break;
-            case "x_custom_return1_config":
-            case "x_custom_return0_config":
-                showDialogCtomHook(preferenceKey);
+            case "x_gboard_config":
+                showDialogGboardHook(preferenceKey);
                 break;
             default:
         }
@@ -281,7 +284,7 @@ public class XFeatureFragment extends PreferenceFragmentCompat implements Prefer
                     mHandler.sendMessage(msg);
                     return;
                 }
-                HashMap<String, String>[] hashMaps = new HashMap[4];
+                HashMap<String, String>[] hashMaps = new HashMap[preference_keys.length - 1];
 
                 for (int i = 0; i < hashMaps.length; i++) {
                     hashMaps[i] = new HashMap<>(2);
@@ -297,9 +300,12 @@ public class XFeatureFragment extends PreferenceFragmentCompat implements Prefer
                 hashMaps[2].put(pkgName, Constants.PACKAGE_NAME_FLYTEK_INPUTMETHOD);
                 hashMaps[3].put(pref_key, "x_caij_see");
                 hashMaps[3].put(pkgName, Constants.PACKAGE_NAME_CAIJ_SEE);
+                hashMaps[4].put(pref_key, "x_gboard");
+                hashMaps[4].put(pkgName, Constants.PACKAGE_NAME_GBOARD);
 
+                int versionsCount = 2;
                 String getPrefKey, getPkgName;
-                for (int i = 0; i < 2; i++) {
+                for (int i = 0; i < versionsCount; i++) {
                     getPrefKey = hashMaps[i].get(pref_key);
                     if (spUtil.getBoolean(getPrefKey, true)) {
                         try {
@@ -312,7 +318,7 @@ public class XFeatureFragment extends PreferenceFragmentCompat implements Prefer
                         }
                     }
                 }
-                for (int i = 2; i < 4; i++) {
+                for (int i = versionsCount; i < hashMaps.length; i++) {
                     getPrefKey = hashMaps[i].get(pref_key);
                     if (spUtil.getBoolean(getPrefKey, true)) {
                         try {
@@ -368,108 +374,34 @@ public class XFeatureFragment extends PreferenceFragmentCompat implements Prefer
     }
 
     private void showDialogTencentHook(String preferenceKey) {
-
-        final EditText valueOfpreferenceKey = new EditText(context);
         if ("x_wechat_config".equals(preferenceKey)) {
-            valueOfpreferenceKey.setHint("类名:方法名,方法名,...或类名;变量名");
+            creatAndshowDialog(preferenceKey, "类名:方法名,方法名,...或类名;变量名", () -> valueOfpreferenceKey.getText().toString().replaceAll("\\s*", "").replace("：", ":").replace("，", ",").replace("；", ";"));
         } else {
-            valueOfpreferenceKey.setHint("类名:方法名,方法名,...");
+            creatAndshowDialog(preferenceKey, "类名:方法名,方法名,...", () -> valueOfpreferenceKey.getText().toString().replaceAll("\\s*", "").replace("：", ":").replace("，", ","));
         }
-        valueOfpreferenceKey.setText(spUtil.getString(preferenceKey));
-        AlertDialog.Builder builder = new AlertDialog.Builder(context)
-                .setTitle("自定义HOOK")
-                .setView(valueOfpreferenceKey)
-                .setNeutralButton("关闭", null)
-                .setNegativeButton("清空", null)
-                .setPositiveButton("保存", null);
-        if ("x_wechat_config".equals(preferenceKey)) {
-            builder.setTitle("自定义HOOK-微信");
-        } else {
-            builder.setTitle("自定义HOOK-QQ");
-        }
-        alertDialog = builder.create();
-        OpUtil.showAlertDialog(context, alertDialog);
-
-        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-            String value = valueOfpreferenceKey.getText().toString().replaceAll("\\s*", "").replace("：", ":").replace("，", ",");
-            if ("x_wechat_config".equals(preferenceKey)) {
-                value = value.replace("；", ";");
-            }
-            valueOfpreferenceKey.setText(value);
-            opPreferenceValueFromDialog(preferenceKey, value, AlertDialog.BUTTON_POSITIVE);
-        });
-        alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v -> valueOfpreferenceKey.setText(null));
-        alertDialog.setOnDismissListener(dialog -> {
-            if (isOpSuccess) {
-                isOpSuccess = false;
-                refresh();
-            }
-        });
     }
 
     private void showDialoghookBrand(String preferenceKey) {
-
-        final EditText valueOfpreferenceKey = new EditText(context);
-        valueOfpreferenceKey.setHint("请输入品牌");
-
-        valueOfpreferenceKey.setText(spUtil.getString(preferenceKey));
-        AlertDialog.Builder builder = new AlertDialog.Builder(context)
-                .setTitle("自定义品牌(Brand)")
-                .setView(valueOfpreferenceKey)
-                .setNeutralButton("关闭", null)
-                .setNegativeButton("清空", null)
-                .setPositiveButton("保存", null);
-
-        alertDialog = builder.create();
-        OpUtil.showAlertDialog(context, alertDialog);
-
-        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> opPreferenceValueFromDialog(preferenceKey, valueOfpreferenceKey.getText().toString(), AlertDialog.BUTTON_POSITIVE));
-        alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v -> valueOfpreferenceKey.setText(null));
-        alertDialog.setOnDismissListener(dialog -> {
-            if (isOpSuccess) {
-                isOpSuccess = false;
-                refresh();
-            }
-        });
+        creatAndshowDialog(preferenceKey, "请输入品牌", () -> valueOfpreferenceKey.getText().toString());
+        alertDialog.setTitle("自定义品牌(Brand)");
     }
 
     private void showDialogIflytekInputHook(String preferenceKey) {
-
-        final EditText valueOfpreferenceKey = new EditText(context);
-        valueOfpreferenceKey.setHint("类名");
-
-        valueOfpreferenceKey.setText(spUtil.getString(preferenceKey));
-        AlertDialog.Builder builder = new AlertDialog.Builder(context)
-                .setTitle("自定义HOOK")
-                .setView(valueOfpreferenceKey)
-                .setNeutralButton("关闭", null)
-                .setNegativeButton("清空", null)
-                .setPositiveButton("保存", null);
-
-
-        alertDialog = builder.create();
-        OpUtil.showAlertDialog(context, alertDialog);
-
-        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-            String value = valueOfpreferenceKey.getText().toString().replaceAll("\\s*", "");
-
-            valueOfpreferenceKey.setText(value);
-            opPreferenceValueFromDialog(preferenceKey, value, AlertDialog.BUTTON_POSITIVE);
-        });
-        alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v -> valueOfpreferenceKey.setText(null));
-        alertDialog.setOnDismissListener(dialog -> {
-            if (isOpSuccess) {
-                isOpSuccess = false;
-                refresh();
-            }
-        });
+        creatAndshowDialog(preferenceKey, "类名", () -> valueOfpreferenceKey.getText().toString().replaceAll("\\s*", ""));
     }
 
     private void showDialogCaijSeeHook(String preferenceKey) {
+        creatAndshowDialog(preferenceKey, "类名:方法名", () -> valueOfpreferenceKey.getText().toString().replaceAll("\\s*", "").replace("：", ":"));
+    }
 
-        final EditText valueOfpreferenceKey = new EditText(context);
-        valueOfpreferenceKey.setHint("类名:方法名");
+    private void showDialogGboardHook(String preferenceKey) {
+        creatAndshowDialog(preferenceKey, "类名:方法名", () -> valueOfpreferenceKey.getText().toString().replaceAll("\\s*", "").replace("：", ":"));
 
+    }
+
+    private void creatAndshowDialog(String preferenceKey, String hint, MyCallback myCallback) {
+        valueOfpreferenceKey = new EditText(context);
+        valueOfpreferenceKey.setHint(hint);
         valueOfpreferenceKey.setText(spUtil.getString(preferenceKey));
         AlertDialog.Builder builder = new AlertDialog.Builder(context)
                 .setTitle("自定义HOOK")
@@ -477,17 +409,17 @@ public class XFeatureFragment extends PreferenceFragmentCompat implements Prefer
                 .setNeutralButton("关闭", null)
                 .setNegativeButton("清空", null)
                 .setPositiveButton("保存", null);
-
-
         alertDialog = builder.create();
         OpUtil.showAlertDialog(context, alertDialog);
 
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-            String value = valueOfpreferenceKey.getText().toString().replaceAll("\\s*", "").replace("：", ":");
+
+            String value = myCallback.getvalue();
 
             valueOfpreferenceKey.setText(value);
-            opPreferenceValueFromDialog(preferenceKey, value, AlertDialog.BUTTON_POSITIVE);
+            opPreferenceValueFromDialog(preferenceKey, value);
         });
+
         alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v -> valueOfpreferenceKey.setText(null));
         alertDialog.setOnDismissListener(dialog -> {
             if (isOpSuccess) {
@@ -495,50 +427,29 @@ public class XFeatureFragment extends PreferenceFragmentCompat implements Prefer
                 refresh();
             }
         });
+
+
     }
 
-    private void showDialogCtomHook(String preferenceKey) {
-
-        final EditText valueOfpreferenceKey = new EditText(context);
-        valueOfpreferenceKey.setHint("包名:类名:方法名,方法名,...;包名:类名:方法名,方法名,...");
-        valueOfpreferenceKey.setText(spUtil.getString(preferenceKey));
-        AlertDialog.Builder builder = new AlertDialog.Builder(context)
-                .setTitle("自定义HOOK")
-                .setView(valueOfpreferenceKey)
-                .setNeutralButton("关闭", null)
-                .setNegativeButton("清空", null)
-                .setPositiveButton("保存", null);
-
-        alertDialog = builder.create();
-        OpUtil.showAlertDialog(context, alertDialog);
-
-        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-            String value = valueOfpreferenceKey.getText().toString().replaceAll("\\s*", "").replace("；", ";").replace("：", ":").replace("，", ",");
-            valueOfpreferenceKey.setText(value);
-            opPreferenceValueFromDialog(preferenceKey, value, AlertDialog.BUTTON_POSITIVE);
-        });
-        alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v -> valueOfpreferenceKey.setText(null));
-        alertDialog.setOnDismissListener(dialog -> {
-            if (isOpSuccess) {
-                isOpSuccess = false;
-                refresh();
-            }
-        });
-    }
-
-    private void opPreferenceValueFromDialog(String preferenceKey, String value, int whichButton) {
+    private void opPreferenceValueFromDialog(String preferenceKey, String value) {
 
         isOpSuccess = false;
 
         try {
-            if (whichButton == AlertDialog.BUTTON_POSITIVE) {
-                spUtil.putString(preferenceKey, value);
-                isOpSuccess = true;
-            }
+            spUtil.putString(preferenceKey, value);
+            isOpSuccess = true;
         } catch (Exception ignore) {
             isOpSuccess = false;
         }
 
+    }
+
+
+    interface MyCallback {
+        /**
+         * 获取Edittext的有效值
+         */
+        String getvalue();
     }
 
     private static class MyHandler extends Handler {

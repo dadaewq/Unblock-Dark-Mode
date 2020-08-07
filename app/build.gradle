@@ -2,15 +2,15 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 30
-    buildToolsVersion "30.0.0"
+    buildToolsVersion "30.0.1"
 
     defaultConfig {
         resConfig 'zh'
         applicationId "com.modosa.unblockdarkmode"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 4
-        versionName "1.31"
+        versionCode 5
+        versionName "1.4"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

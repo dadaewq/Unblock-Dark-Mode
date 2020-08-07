@@ -62,7 +62,7 @@ public class XModule implements IXposedHookLoadPackage {
                 initPreferencesWithCallHook(this::hookCustomCaijSee);
                 break;
             case Constants.PACKAGE_NAME_GBOARD:
-                initPreferencesWithCallHook(this::hookCustomBoard);
+                initPreferencesWithCallHook(this::hookCustomGboard);
                 break;
             case Constants.PACKAGE_NAME_MOBILEQQ:
                 initPreferencesWithCallHook(() -> hookCustomTencent("x_mobileqq"));
@@ -192,7 +192,7 @@ public class XModule implements IXposedHookLoadPackage {
             if (sharedPreferences.getBoolean(key + "_hookBrand", false)) {
                 hookBrand(sharedPreferences.getString(key + "_hookBrand_config", ""));
             }
-            //不解除限制
+
             if (sharedPreferences.getBoolean(key, true)) {
                 //获取自定义
                 x_tencent_config = sharedPreferences.getString(key + "_config", "");
@@ -200,6 +200,7 @@ public class XModule implements IXposedHookLoadPackage {
 
                 try {
                     if (!"".equals(x_tencent_config)) {
+                        assert x_tencent_config != null;
                         x_tencent_config = x_tencent_config.replaceAll("\\s*", "").replace("：", ":").replace("，", ",");
                         int length = x_tencent_config.length();
                         if ("x_wechat".equals(key)) {
@@ -225,7 +226,7 @@ public class XModule implements IXposedHookLoadPackage {
                             if (splits.length >= 2) {
                                 String className = splits[0];
                                 String[] methodNames = splits[1].split(",");
-                                //只有当自定义的配置没有明显错误的时候才不使用默认的Hook
+
                                 hookReturnBooleanWithmethodNames(loadPackageParam.classLoader, className, methodNames, true);
                             }
                         }
@@ -259,7 +260,7 @@ public class XModule implements IXposedHookLoadPackage {
         String x_iflytek_input_config;
         if (sharedPreferences != null) {
             String key = "x_iflytek_input";
-            //不解除限制
+
             if (sharedPreferences.getBoolean(key, true)) {
                 //获取自定义
                 x_iflytek_input_config = sharedPreferences.getString(key + "_config", "");
@@ -267,6 +268,7 @@ public class XModule implements IXposedHookLoadPackage {
 
                 try {
                     if (!"".equals(x_iflytek_input_config)) {
+                        assert x_iflytek_input_config != null;
                         x_iflytek_input_config = x_iflytek_input_config.replaceAll("\\s*", "");
 
                         if (x_iflytek_input_config.length() > 2) {
@@ -364,7 +366,7 @@ public class XModule implements IXposedHookLoadPackage {
         String x_caij_see_config;
         if (sharedPreferences != null) {
             String key = "x_caij_see";
-            //不解除限制
+
             if (sharedPreferences.getBoolean(key, true)) {
                 //获取自定义
                 x_caij_see_config = sharedPreferences.getString(key + "_config", "");
@@ -372,14 +374,15 @@ public class XModule implements IXposedHookLoadPackage {
 
                 try {
                     if (!"".equals(x_caij_see_config)) {
+                        assert x_caij_see_config != null;
                         x_caij_see_config = x_caij_see_config.replaceAll("\\s*", "").replace("：", ":");
 
                         if (x_caij_see_config.length() > 15) {
-                            String[] x_config1 = x_caij_see_config.split(":");
+                            String[] splits = x_caij_see_config.split(":");
                             String className, methodName;
-                            if (x_config1.length >= 2) {
-                                className = x_config1[0];
-                                methodName = x_config1[1];
+                            if (splits.length >= 2) {
+                                className = splits[0];
+                                methodName = splits[1];
 
                                 hookCaijSee(className, methodName);
                             }
@@ -406,32 +409,35 @@ public class XModule implements IXposedHookLoadPackage {
         }
     }
 
-    private void hookCustomBoard() {
+    private boolean isnightMode(Context context) {
+        return (context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+    }
 
+    private void hookCustomGboard() {
 
         String x_gboard_config;
         if (sharedPreferences != null) {
             String key = "x_gboard";
-            //不解除限制
+
             if (sharedPreferences.getBoolean(key, true)) {
                 //获取自定义
                 x_gboard_config = sharedPreferences.getString(key + "_config", "");
+
                 Log.e("x_gboard_config", key + "_config——" + x_gboard_config);
 
                 try {
                     if (!"".equals(x_gboard_config)) {
+                        assert x_gboard_config != null;
                         x_gboard_config = x_gboard_config.replaceAll("\\s*", "").replace("：", ":");
 
-                        if (x_gboard_config.length() > 15) {
-                            String[] x_config1 = x_gboard_config.split(":");
-                            String className, methodName;
-                            if (x_config1.length >= 2) {
-                                className = x_config1[0];
-                                methodName = x_config1[1];
+                        if (x_gboard_config.length() > 2) {
+                            String[] splits = x_gboard_config.split(":");
+                            if (splits.length >= 2) {
+                                String className = splits[0];
+                                String methodName = splits[1];
 
-                                hookCaijSee(className, methodName);
+                                hookGboard(className, methodName, context);
                             }
-
                         }
                     }
                 } catch (Exception e) {
@@ -439,6 +445,25 @@ public class XModule implements IXposedHookLoadPackage {
                 }
 
             }
+        }
+    }
+
+    private void hookGboard(String className, String methodName, Context context) {
+
+        try {
+            findAndHookMethod(className,
+                    loadPackageParam.classLoader,
+                    methodName,
+                    new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            super.beforeHookedMethod(param);
+
+                            param.setResult(isnightMode(context));
+                        }
+                    });
+        } catch (Exception e) {
+            XposedBridge.log("" + e);
         }
     }
 
@@ -480,6 +505,9 @@ public class XModule implements IXposedHookLoadPackage {
 
 
     private void findAndHookMethodReturnBoolean(ClassLoader classLoader, String className, String methodName, boolean booleanVlaue) {
+
+        Log.e("hookCaijSee", className + methodName);
+
         try {
             findAndHookMethod(className, classLoader,
                     methodName,

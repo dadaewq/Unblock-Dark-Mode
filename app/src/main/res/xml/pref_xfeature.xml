@@ -60,12 +60,10 @@
         <Preference app:key="x_caij_see_config" />
         <SwitchPreferenceCompat
             app:defaultValue="true"
-            app:isPreferenceVisible="false"
             app:key="x_gboard"
-            app:summary="强制Gboard默认皮肤跟随系统"
+            app:summary="强制Gboard在处于深色模式时使用深色皮肤"
             app:title="Gboard" />
         <Preference
-            app:isPreferenceVisible="false"
             app:key="x_gboard_config"
             app:title="自定义Gboard" />
     </PreferenceCategory>
