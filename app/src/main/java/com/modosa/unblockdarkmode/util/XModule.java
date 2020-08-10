@@ -506,8 +506,6 @@ public class XModule implements IXposedHookLoadPackage {
 
     private void findAndHookMethodReturnBoolean(ClassLoader classLoader, String className, String methodName, boolean booleanVlaue) {
 
-        Log.e("hookCaijSee", className + methodName);
-
         try {
             findAndHookMethod(className, classLoader,
                     methodName,

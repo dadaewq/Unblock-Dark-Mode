@@ -61,7 +61,7 @@
         <SwitchPreferenceCompat
             app:defaultValue="true"
             app:key="x_gboard"
-            app:summary="强制Gboard在处于深色模式时使用深色皮肤"
+            app:summary="强制Gboard在处于深色模式时使用深色皮肤\n(每次开机后需要强行停止一次)"
             app:title="Gboard" />
         <Preference
             app:key="x_gboard_config"
