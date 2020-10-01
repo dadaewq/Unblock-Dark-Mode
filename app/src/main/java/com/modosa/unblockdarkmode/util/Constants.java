@@ -13,5 +13,5 @@ public class Constants {
     public static final String PACKAGE_NAME_FLYTEK_INPUTMETHOD = "com.iflytek.inputmethod";
     public static final String PACKAGE_NAME_CAIJ_SEE = "com.caij.see";
     public static final String PACKAGE_NAME_GBOARD = "com.google.android.inputmethod.latin";
-
+    public static final String PACKAGE_NAME_JD = "com.jingdong.app.mall";
 }

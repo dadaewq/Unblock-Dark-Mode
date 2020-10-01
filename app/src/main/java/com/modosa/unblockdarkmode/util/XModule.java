@@ -55,6 +55,9 @@ public class XModule implements IXposedHookLoadPackage {
             case Constants.PACKAGE_NAME_DINGTALK_GLOBAL:
                 initPreferencesWithCallHook(this::hookDingTalk);
                 break;
+            case Constants.PACKAGE_NAME_JD:
+                initPreferencesWithCallHook(this::hookJD);
+                break;
             case Constants.PACKAGE_NAME_FLYTEK_INPUTMETHOD:
                 initPreferencesWithCallHook(this::hookCustomIflytekInput);
                 break;
@@ -104,6 +107,7 @@ public class XModule implements IXposedHookLoadPackage {
     private void hookSdkInt(int versionSdk) {
         try {
             XposedHelpers.setStaticObjectField(Build.VERSION.class, "SDK_INT", versionSdk);
+            Log.e("themejd", " hookSdkInt ||| " + versionSdk);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -140,6 +144,7 @@ public class XModule implements IXposedHookLoadPackage {
 //        }
 
     }
+
 
     private void hookCoolapk() {
 
@@ -184,6 +189,118 @@ public class XModule implements IXposedHookLoadPackage {
         }
     }
 
+    private void hookJDSharedPreferencesgetBoolean(String key, boolean value) {
+        try {
+            findAndHookMethod("com.jingdong.jdsdk.utils.JDSharedPreferences", loadPackageParam.classLoader,
+                    "getBoolean",
+                    String.class,
+                    boolean.class,
+                    new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            super.beforeHookedMethod(param);
+                            Log.e("themejd", param.args.length + " beforeHookedMethod: " + param.args[0]);
+                            if (key.equals(param.args[0])) {
+                                param.setResult(value);
+                            }
+                        }
+                    }
+            );
+
+        } catch (Exception e) {
+            XposedBridge.log("" + e);
+        }
+
+    }
+
+    private void hookJD() {
+        if (sharedPreferences != null && sharedPreferences.getBoolean("x_jd", true)) {
+
+
+            hookJDSharedPreferencesgetBoolean("deep_dark_guide_switch", true);
+            hookJDSharedPreferencesgetBoolean("deep_dark_follow_sys_switch", true);
+
+
+//            try {
+//                findAndHookMethod("com.jingdong.app.mall.JDApp", loadPackageParam.classLoader,
+//                        "onConfigurationChanged",
+//                        Configuration.class,
+//                        new XC_MethodHook() {
+//                            @Override
+//                            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+//                                super.beforeHookedMethod(param);
+//                                 Log.e("themejd00", " ||| " + param.args[0]);
+//                                XposedBridge.log("themejd"+" ||| " + param.args[0]);
+//                                if (param.args[0] != null) {
+//                                     Log.e("themejd00", " ||| " + (((Configuration) (param.args[0])).uiMode & 48));
+//                                }
+//                            }
+//                        }
+//                );
+//            } catch (Exception e) {
+//                XposedBridge.log("" + e);
+//            }
+
+
+//            try {
+//                findAndHookMethod("com.jingdong.common.utils.DeepDarkChangeManager", loadPackageParam.classLoader,
+//                        "handleUIModeConfiguration",
+//                        Configuration.class,
+//                        new XC_MethodHook() {
+//                            @Override
+//                            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+//                                super.beforeHookedMethod(param);
+//                                Log.e("themejd", " ||| " + param.args[0]);
+//                                XposedBridge.log("themejd"+" ||| " + param.args[0]);
+//                                if (param.args[0] != null) {
+//                                    Log.e("themejd", " ||| " + (((Configuration) (param.args[0])).uiMode & 48));
+//                                }
+//                            }
+//                        }
+//                );
+//            } catch (Exception e) {
+//                XposedBridge.log("" + e);
+//            }
+
+
+//            try {
+//                findAndHookMethod("com.jd.stat.security.jma.JMA", loadPackageParam.classLoader,
+//                        "needXposedDialog",
+//                        XC_MethodReplacement.returnConstant(false)
+//                );
+//            } catch (Exception e) {
+//                XposedBridge.log("" + e);
+//            }
+
+//            try {
+//                findAndHookMethod("com.jingdong.common.utils.DeepDarkChangeManager", loadPackageParam.classLoader,
+//                        "isAtLeastQ",
+//                        XC_MethodReplacement.returnConstant(true)
+//                );
+//            } catch (Exception e) {
+//                XposedBridge.log("" + e);
+//            }
+
+//            try {
+//                findAndHookMethod("com.jingdong.common.utils.DeepDarkChangeManager", loadPackageParam.classLoader,
+//                        "getDarkModeSwitchHasTurned",
+//                        XC_MethodReplacement.returnConstant(true)
+//                );
+//            } catch (Exception e) {
+//                XposedBridge.log("" + e);
+//            }
+
+
+//            try {
+//                findAndHookMethod("com.jingdong.common.utils.DeepDarkChangeManager", loadPackageParam.classLoader,
+//                        "getIsUIModeFollowSystem",
+//                        XC_MethodReplacement.returnConstant(true)
+//                );
+//            } catch (Exception e) {
+//                XposedBridge.log("" + e);
+//            }
+        }
+    }
 
     private void hookCustomTencent(String key) {
 
