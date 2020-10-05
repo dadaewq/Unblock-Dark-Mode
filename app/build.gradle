@@ -9,8 +9,8 @@ android {
         applicationId "com.modosa.unblockdarkmode"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 6
-        versionName "1.5"
+        versionCode 11
+        versionName "1.81"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

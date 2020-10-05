@@ -18,35 +18,44 @@
     <PreferenceCategory app:title="应用设置">
         <SwitchPreferenceCompat
             app:defaultValue="true"
+            app:icon="@drawable/ic_coolapk"
             app:key="x_coolapk"
             app:summary="设置-界面显示-夜间模式跟随系统"
             app:title="酷安" />
         <SwitchPreferenceCompat
             app:defaultValue="true"
+            app:icon="@drawable/ic_dingtalk"
             app:key="x_dingtalk"
             app:summary="设置-通用-深色主题设置-跟随系统"
             app:title="钉钉" />
         <SwitchPreferenceCompat
             app:defaultValue="true"
+            app:icon="@drawable/ic_jd"
             app:key="x_jd"
             app:summary="强制开启暗黑模式跟随系统"
             app:title="京东" />
         <SwitchPreferenceCompat
             app:defaultValue="true"
+            app:icon="@drawable/ic_weibo_in"
+            app:key="x_weibo_in"
+            app:summary="强制开启夜间模式跟随系统"
+            app:title="微博国际版" />
+        <SwitchPreferenceCompat
+
+            app:defaultValue="true"
+            app:icon="@drawable/ic_qq"
             app:key="x_mobileqq"
             app:summary="设置-通用-跟随系统深色模式"
             app:title="QQ" />
-        <Preference
-            app:icon="@drawable/ic_qq"
-            app:key="x_mobileqq_config" />
+        <Preference app:key="x_mobileqq_config" />
         <SwitchPreferenceCompat
+
             app:defaultValue="true"
+            app:icon="@drawable/ic_wechat"
             app:key="x_wechat"
             app:summary="强制跟随系统深色模式\n或解除相关限制"
             app:title="微信" />
-        <Preference
-            app:icon="@drawable/ic_wechat"
-            app:key="x_wechat_config" />
+        <Preference app:key="x_wechat_config" />
         <SwitchPreferenceCompat
             app:key="x_wechat_hookBrand"
             app:title="微信内修改设备品牌" />
@@ -65,12 +74,40 @@
         <Preference app:key="x_caij_see_config" />
         <SwitchPreferenceCompat
             app:defaultValue="true"
+            app:icon="@drawable/ic_gboard"
             app:key="x_gboard"
             app:summary="强制Gboard在处于深色模式时使用深色皮肤\n(每次开机后需要强行停止一次)"
             app:title="Gboard" />
         <Preference
             app:key="x_gboard_config"
             app:title="自定义Gboard" />
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:icon="@drawable/ic_bili"
+            app:key="x_bili"
+            app:summary="强制哔哩哔哩的主题在切换系统深色模式时跟随"
+            app:title="哔哩哔哩" />
+        <Preference
+            app:key="x_bili_config"
+            app:title="自定义哔哩哔哩" />
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:icon="@drawable/ic_bili_in"
+            app:key="x_bili_in"
+            app:summary="强制bilibili的主题在切换系统深色模式时跟随"
+            app:title="bilibili" />
+        <Preference
+            app:key="x_bili_in_config"
+            app:title="自定义bilibili" />
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:icon="@drawable/ic_quark"
+            app:key="x_quark"
+            app:summary="强制夸克的暗夜模式在切换系统深色模式时跟随"
+            app:title="夸克" />
+        <Preference
+            app:key="x_quark_config"
+            app:title="自定义夸克" />
     </PreferenceCategory>
 
 </PreferenceScreen>
