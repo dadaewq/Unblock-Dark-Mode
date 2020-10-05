@@ -41,6 +41,12 @@
             app:summary="强制开启夜间模式跟随系统"
             app:title="微博国际版" />
         <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:icon="@drawable/ic_cloudmusic"
+            app:key="x_couldmusic"
+            app:summary="强制开启夜间模式跟随系统"
+            app:title="网易云音乐" />
+        <SwitchPreferenceCompat
 
             app:defaultValue="true"
             app:icon="@drawable/ic_qq"
@@ -103,7 +109,7 @@
             app:defaultValue="true"
             app:icon="@drawable/ic_quark"
             app:key="x_quark"
-            app:summary="强制夸克的暗夜模式在切换系统深色模式时跟随"
+            app:summary="强制开启暗夜模式跟随系统"
             app:title="夸克" />
         <Preference
             app:key="x_quark_config"

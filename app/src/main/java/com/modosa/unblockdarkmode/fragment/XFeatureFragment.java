@@ -193,7 +193,16 @@ public class XFeatureFragment extends PreferenceFragmentCompat implements Prefer
 
     private void setTitle() {
 
-        String[] packageNames = new String[]{Constants.PACKAGE_NAME_MOBILEQQ, Constants.PACKAGE_NAME_WECHAT, Constants.PACKAGE_NAME_FLYTEK_INPUTMETHOD, Constants.PACKAGE_NAME_CAIJ_SEE, Constants.PACKAGE_NAME_GBOARD, Constants.PACKAGE_NAME_BILIBILI, Constants.PACKAGE_NAME_BILIBILI_IN, Constants.PACKAGE_NAME_QUARK};
+        String[] packageNames = new String[]{
+                Constants.PACKAGE_NAME_MOBILEQQ,
+                Constants.PACKAGE_NAME_WECHAT,
+                Constants.PACKAGE_NAME_FLYTEK_INPUTMETHOD,
+                Constants.PACKAGE_NAME_CAIJ_SEE,
+                Constants.PACKAGE_NAME_GBOARD,
+                Constants.PACKAGE_NAME_BILIBILI,
+                Constants.PACKAGE_NAME_BILIBILI_IN,
+                Constants.PACKAGE_NAME_QUARK,
+        };
         String[] labels = new String[]{
                 "QQ",
                 "微信",
@@ -333,6 +342,14 @@ public class XFeatureFragment extends PreferenceFragmentCompat implements Prefer
 
                 String pref_key = "pref_key";
                 String pkgName = "pkgName";
+                hashMaps[0].put(pref_key, "x_mobileqq");
+                hashMaps[0].put(pkgName, Constants.PACKAGE_NAME_MOBILEQQ);
+                hashMaps[1].put(pref_key, "x_wechat");
+                hashMaps[1].put(pkgName, Constants.PACKAGE_NAME_WECHAT);
+                hashMaps[2].put(pref_key, "x_iflytek_input");
+                hashMaps[2].put(pkgName, Constants.PACKAGE_NAME_FLYTEK_INPUTMETHOD);
+                hashMaps[3].put(pref_key, "x_caij_see");
+                hashMaps[3].put(pkgName, Constants.PACKAGE_NAME_CAIJ_SEE);
                 hashMaps[4].put(pref_key, "x_gboard");
                 hashMaps[4].put(pkgName, Constants.PACKAGE_NAME_GBOARD);
                 hashMaps[5].put(pref_key, "x_bili");

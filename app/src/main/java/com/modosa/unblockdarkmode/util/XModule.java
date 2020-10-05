@@ -6,7 +6,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.Keep;
 
@@ -27,6 +29,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.callStaticMethod;
+import static de.robv.android.xposed.XposedHelpers.findAndHookConstructor;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 import static de.robv.android.xposed.XposedHelpers.findFieldIfExists;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
@@ -88,6 +91,9 @@ public class XModule implements IXposedHookLoadPackage {
                 break;
             case Constants.PACKAGE_NAME_QUARK:
                 initPreferencesWithCallHook(this::hookQuark);
+                break;
+            case Constants.PACKAGE_NAME_CLOUDMUSIC:
+                initPreferencesWithCallHook(this::hookCloudMusic);
                 break;
             case BuildConfig.APPLICATION_ID:
                 hookMyself();
@@ -444,6 +450,208 @@ public class XModule implements IXposedHookLoadPackage {
     }
 
 
+    private void hookCloudMusic() {
+        if (sharedPreferences != null && sharedPreferences.getBoolean("x_cloudmusic", true)) {
+
+            ClassLoader cl = context.getClassLoader();
+            //cl.loadclass("className")找其他类
+            //Class.forName("className",true,cl)
+            Class<?> hookclass0, hookclass1, hookclass2;
+
+            String clazzName = "com.netease.cloudmusic.ui.MainDrawer";
+            hookclass0 = loadClass(cl, clazzName);
+
+            clazzName = "com.netease.cloudmusic.activity.MainActivity";
+            hookclass1 = loadClass(cl, clazzName);
+
+            clazzName = "com.netease.cloudmusic.theme.core.ResourceRouter";
+            hookclass2 = loadClass(cl, clazzName);
+
+
+            try {
+
+                final Object[] MainDrawer = {null};
+
+                findAndHookConstructor(hookclass0,
+                        hookclass1,
+                        new XC_MethodHook() {
+                            @Override
+                            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                                super.afterHookedMethod(param);
+
+                                MainDrawer[0] = param.thisObject;
+                            }
+                        }
+                );
+
+                SwitchCloudMusicTheme switchCloudMusicTheme = new SwitchCloudMusicTheme(MainDrawer, hookclass0, hookclass1, hookclass2);
+
+                switchCloudMusicTheme.findAndHookMethod(
+                        hookclass1,
+                        "onCreate",
+                        Bundle.class
+                );
+
+                switchCloudMusicTheme.findAndHookMethod(
+                        Application.class,
+                        "onConfigurationChanged",
+                        Configuration.class
+                );
+
+
+//                findAndHookMethod(Application.class,
+//                        "onConfigurationChanged",
+//                        Configuration.class,
+//                        new XC_MethodHook() {
+//                            @Override
+//                            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+//                                super.afterHookedMethod(param);
+//
+//                                if (MainDrawer[0] == null) {
+//                                    return;
+//                                }
+//                                boolean isNightMode = isnightMode(context);
+//
+//
+//                                Object instance_ResourceRouter = callStaticMethod(
+//                                        hookclass2,
+//                                        "getInstance"
+//                                );
+//
+//                                boolean isNightTheme = (boolean) callMethod(
+//                                        instance_ResourceRouter,
+//                                        "isNightTheme"
+//
+//                                );
+//
+//                                if (isNightTheme != isNightMode) {
+//                                    Object drawerThemeMode = getObjectField(
+//                                            MainDrawer[0],
+//                                            "drawerThemeMode"
+//                                    );
+//                                    Log.e("x_cloudmusic", "drawerThemeMode " + drawerThemeMode);
+//
+//                                    ((View) drawerThemeMode).callOnClick();
+//                                }
+//
+//                                Log.e("x_cloudmusic", "isNightMode" + isNightMode);
+//
+//                                int getCurrentThemeId = (int) callStaticMethod(
+//                                        findClass(
+//                                                "com.netease.cloudmusic.theme.core.ThemeConfig",
+//                                                loadPackageParam.classLoader
+//                                        ),
+//                                        "getCurrentThemeId"
+//                                );
+//                                Log.e("x_cloudmusic", "getCurrentThemeId" + getCurrentThemeId);
+//
+//                                Object ThemeInfo = findClass(
+//                                        "com.netease.cloudmusic.theme.core.ThemeInfo",
+//                                        loadPackageParam.classLoader
+//                                ).getConstructor(int.class)
+//                                        .newInstance(getCurrentThemeId);
+//
+//                                Log.e("x_cloudmusic", "ThemeInfo " + ThemeInfo);
+//
+//                                boolean isNightheme = (int) callMethod(
+//                                        ThemeInfo,
+//                                        "getId"
+//                                ) == -3;
+//
+//                                Log.e("x_cloudmusic", "isNightheme " + isNightheme);
+//
+//
+//                                if (isNightheme != isNightMode) {
+//                                    Object drawerThemeMode = getObjectField(
+//                                            MainDrawer[0],
+//                                            "drawerThemeMode"
+//                                    );
+//                                    Log.e("x_cloudmusic", "drawerThemeMode " + drawerThemeMode);
+//
+//                                    ((View) drawerThemeMode).callOnClick();
+////
+////                                      ((View) drawerThemeMode).performClick();
+//
+//                                    View.OnClickListener clickListener = getOnClickListener((View) drawerThemeMode);
+//
+//                                    Log.e("x_cloudmusic", "clickListener " + clickListener);
+////                                            clickListener.onClick((View) drawerThemeMode);
+//
+//                                    ClassLoader classLoader = loadPackageParam.classLoader;
+//
+//                                    Class<?> hookclass0 = classLoader.loadClass("com.netease.cloudmusic.ui.MainDrawer$10");
+//                                    Class<?> hookclass1 = classLoader.loadClass("com.netease.cloudmusic.ui.MainDrawer");
+//
+//                                    Log.e("x_cloudmusic", "hookclass0 " + hookclass0);
+//                                    Log.e("x_cloudmusic", "hookclass01 " + hookclass1);
+//
+//                                    Constructor<?> constructor = hookclass0
+//                                            .getDeclaredConstructor(
+//                                                    hookclass1
+//                                            );
+//
+//                                    Log.e("x_cloudmusic", "constructor " + constructor);
+//
+//                                    Log.e("x_cloudmusic", "constructor " + constructor.isAccessible());
+//
+//                                    constructor.setAccessible(true);
+//
+//
+//                                    Log.e("x_cloudmusic", "constructor " + constructor.isAccessible());
+//
+//                                    Object mainDrawer$10 = constructor.newInstance(MainDrawer[0]);
+//
+//                                    getObjectField(
+//                                            MainDrawer[0],
+//                                            "drawerThemeMode"
+//                                    );
+//                                    Log.e("x_cloudmusic", "MainDrawer$10 " + mainDrawer$10);
+//
+//                                    View view = null;
+//                                    callMethod(
+//                                            mainDrawer$10,
+//                                            "onClick",
+//                                            view
+//
+//                                    );
+//                                }
+//                            }
+//                        }
+//                );
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+//    public View.OnClickListener getOnClickListener(View view) {
+//        View.OnClickListener listener = null;
+//        try {
+//            Field listenerInfoField;
+//            listenerInfoField = View.class
+//                    .getDeclaredField("mListenerInfo");
+//            if (listenerInfoField != null) {
+//                listenerInfoField.setAccessible(true);
+//            }
+//            Object myLiObject = null;
+//            myLiObject = listenerInfoField.get(view);
+//
+//            Field listenerField = null;
+//            listenerField = Class.forName("android.view.View$ListenerInfo")
+//                    .getDeclaredField("mOnClickListener");
+//            if (listenerField != null && myLiObject != null) {
+//                listener = (View.OnClickListener) listenerField
+//                        .get(myLiObject);
+//            }
+//        } catch (Exception ex) {
+//            listener = null;
+//        }
+//        return listener;
+//    }
+
+
     private void hookCustomTencent(String key) {
 
         String x_tencent_config;
@@ -670,7 +878,7 @@ public class XModule implements IXposedHookLoadPackage {
             if (sharedPreferences.getBoolean(key, true)) {
                 //获取自定义
                 x_caij_see_config = sharedPreferences.getString(key + "_config", "");
-                Log.e("x_bili_config", key + "_config——" + x_caij_see_config);
+                Log.e("x_caij_see_config", key + "_config——" + x_caij_see_config);
 
                 try {
                     if (!"".equals(x_caij_see_config)) {
@@ -1053,6 +1261,7 @@ public class XModule implements IXposedHookLoadPackage {
         }
     }
 
+
     private Class<?> loadClass(ClassLoader cl, String clazzName) {
         Class<?> hookclass;
 
@@ -1084,13 +1293,20 @@ public class XModule implements IXposedHookLoadPackage {
                         x_quark_config = x_quark_config.replaceAll("\\s*", "").replaceAll("，", ",").replaceAll("：", ":");
 
                         String[] splits = x_quark_config.split(":");
-                        if (splits.length >= 3) {
+                        if (splits.length >= 2) {
                             String[] splits0 = splits[0].split(",");
                             String[] splits1 = splits[1].split(",");
-                            String[] splits2 = splits[2].split(",");
-                            if (splits0.length >= 3 && splits1.length >= 3 && splits2.length >= 2) {
-                                hookCustomQuark(splits0, splits1, splits2);
+                            if (splits.length >= 3) {
+                                String[] splits2 = splits[2].split(",");
+                                if (splits0.length >= 3 && splits1.length >= 3 && splits2.length >= 2) {
+                                    hookCustomQuark(splits1, splits2);
+                                }
+                            } else {
+                                if (splits0.length >= 3 && splits1.length >= 2) {
+                                    hookCustomQuark(splits0, splits1);
+                                }
                             }
+
                         }
                     }
                 } catch (Exception e) {
@@ -1110,6 +1326,7 @@ public class XModule implements IXposedHookLoadPackage {
      * @param splits1 com.ucweb.common.util.l.e, aSS, ox:
      * @param splits2 com.ucweb.common.util.l.f, gtF
      */
+    @Deprecated
     private void hookCustomQuark(String[] splits0, String[] splits1, String[] splits2) {
 
         Log.e("quarkk", "\n\n 开始 hookQuarkk");
@@ -1227,6 +1444,146 @@ public class XModule implements IXposedHookLoadPackage {
 //        }
     }
 
+    private void hookCustomQuark(String[] splits0, String[] splits1) {
+        hookCustomQuarkOrUCTurbo(
+                "quarkk",
+                "com.ucpro.MainActivity",
+                splits0,
+                splits1
+        );
+    }
+
+    private void hookCustomQuarkOrUCTurbo(String TAG, String clazzName, String[] splits0, String[] splits1) {
+
+        Log.e(TAG, "\n\n 开始 hook " + TAG);
+
+        ClassLoader cl = context.getClassLoader();
+        //cl.loadclass("className")找其他类
+        //Class.forName("className",true,cl)
+        Class<?> hookclassMain, hookclass0, hookclass1;
+
+        hookclassMain = loadClass(cl, clazzName);
+
+        clazzName = splits0[0];
+        hookclass0 = loadClass(cl, clazzName);
+
+
+        clazzName = splits1[0];
+        hookclass1 = loadClass(cl, clazzName);
+
+        if (hookclassMain == null || hookclass0 == null || hookclass1 == null) {
+            Log.e(TAG, "MutiDex 寻找三个class 失败");
+        }
+
+        SharedPreferences.Editor editor = context.getSharedPreferences("settings", 0).edit();
+
+
+        switchQuarkOrUC switchQuarkOrUC = new switchQuarkOrUC(
+                context,
+                TAG,
+                editor,
+                hookclass0, hookclass1,
+                splits0, splits1
+        );
+
+        switchQuarkOrUC.findAndHookMethod(hookclassMain, "onCreate", Bundle.class);
+        switchQuarkOrUC.findAndHookMethod(Application.class, "onConfigurationChanged", Configuration.class);
+
+
+//        try {
+//            findAndHookMethod(
+//                    hookclassMain,
+//                    methodName,
+//                    Bundle.class,
+//                    new CallPrepare( TAG,
+//                            editor,
+//                            hookclass0, hookclass1,
+//                            splits0, splits1
+//                    )
+////                    new XC_MethodHook() {
+////                        @Override
+////                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+////                            super.afterHookedMethod(param);
+////
+////                            Log.e(TAG, "onConfigurationChanged 0000000000");
+////
+////                            try {
+////                                boolean isNightMode = isnightMode(context);
+////
+////                                editor.putBoolean("setting_night_mode", isNightMode);
+////                                editor.apply();
+////
+////                                Object instance_switchDark = callStaticMethod(
+////                                        hookclass0,
+////                                        splits0[1]
+////                                );
+////
+////                                callMethod(
+////                                        instance_switchDark,
+////                                        splits0[2],
+////                                        getStaticIntField(hookclass1, splits1[1])
+////                                );
+////
+////
+////                            } catch (Exception e) {
+////                                Log.e(TAG, "Exception onConfigurationChanged  \n" + e);
+////                            }
+////
+////                            Log.e(TAG, "onConfigurationChanged  11111111");
+////                        }
+////                    }
+//            );
+//        } catch (Exception e) {
+//            Log.e(TAG, "hook" + "Exception");
+//            XposedBridge.log("" + e);
+//        }
+
+//        try {
+//            findAndHookMethod(Application.class,
+//                    "onConfigurationChanged",
+//                    new Object[]{"dsf", "sd"
+//                    },
+//                    Configuration.class,
+//                    new XC_MethodHook() {
+//                        @Override
+//                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+//                            super.afterHookedMethod(param);
+//
+//                            Log.e(TAG, "onConfigurationChanged 0000000000");
+//
+//                            try {
+//                                boolean isNightMode = isnightMode(context);
+//
+//                                editor.putBoolean("setting_night_mode", isNightMode);
+//                                editor.apply();
+//
+//                                Object instance_switchDark = callStaticMethod(
+//                                        hookclass0,
+//                                        splits0[1]
+//                                );
+//
+//                                callMethod(
+//                                        instance_switchDark,
+//                                        splits0[2],
+//                                        getStaticIntField(hookclass1, splits1[1])
+//                                );
+//
+//
+//                            } catch (Exception e) {
+//                                Log.e(TAG, "Exception onConfigurationChanged  \n" + e);
+//                            }
+//
+//                            Log.e(TAG, "onConfigurationChanged  11111111");
+//                        }
+//                    }
+//            );
+//        } catch (Exception e) {
+//            Log.e(TAG, "hook" + "Exception");
+//            XposedBridge.log("" + e);
+//        }
+
+    }
+
 
     private void hookMyself() {
         try {
@@ -1238,7 +1595,6 @@ public class XModule implements IXposedHookLoadPackage {
             XposedBridge.log("" + e);
         }
     }
-
 
     private boolean isnightMode(Context context) {
         return (context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
@@ -1289,5 +1645,160 @@ public class XModule implements IXposedHookLoadPackage {
          * CallHook 接口
          */
         void call();
+    }
+
+    class switchQuarkOrUC {
+        Context context;
+        String TAG;
+        SharedPreferences.Editor editor;
+        Class<?> hookclass0, hookclass1;
+        String[] splits0, splits1;
+
+        public switchQuarkOrUC(Context context, String TAG, SharedPreferences.Editor editor, Class<?> hookclass0, Class<?> hookclass1, String[] splits0, String[] splits1) {
+            this.context = context;
+            this.TAG = TAG;
+            this.editor = editor;
+            this.hookclass0 = hookclass0;
+            this.hookclass1 = hookclass1;
+            this.splits0 = splits0;
+            this.splits1 = splits1;
+        }
+
+
+        public void findAndHookMethod(Class<?> clazz, String methodName, Class<?> singclass) {
+            try {
+                XposedHelpers.findAndHookMethod(clazz,
+                        methodName,
+                        singclass,
+                        new XC_MethodHook() {
+                            @Override
+                            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                                super.afterHookedMethod(param);
+
+                                Log.e(TAG, methodName + " 0000000000");
+
+                                try {
+                                    SharedPreferences.Editor editor = context.getSharedPreferences("settings", 0).edit();
+                                    Log.e(TAG, "isSettingnightMode===: 0get " + context.getSharedPreferences("settings", 0).getBoolean("setting_night_mode", false));
+                                    boolean isNightMode = isnightMode(context);
+                                    Log.e(TAG, "isnightMode: " + isNightMode);
+
+                                    editor.putBoolean("setting_night_mode", isNightMode).apply();
+
+
+                                    Log.e(TAG, "isSettingnightMode===: 2get" + context.getSharedPreferences("settings", 0).getBoolean("setting_night_mode", false));
+
+
+                                    Object instance_switchDark = callStaticMethod(
+                                            hookclass0,
+                                            splits0[1]
+                                    );
+
+//                                    Log.e(TAG, "Exception  000 \n" + instance_switchDark);
+//                                    Log.e(TAG, "Exception  111 \n" + splits0[2]);
+//                                    Log.e(TAG, "Exception  222 \n" + getStaticIntField(hookclass1, splits1[1]));
+
+                                    try {
+                                        callMethod(
+                                                instance_switchDark,
+                                                splits0[2],
+                                                getStaticIntField(hookclass1, splits1[1])
+                                        );
+                                    } catch (Exception e) {
+                                        Log.e(TAG, "callMethod   " + e);
+                                    }
+
+                                    Log.e(TAG, "isSettingnightMode===: 3get" + context.getSharedPreferences("settings", 0).getBoolean("setting_night_mode", false));
+
+                                } catch (Exception e) {
+                                    Log.e(TAG, "Exception" + methodName + "  \n" + e);
+                                }
+
+                                Log.e(TAG, methodName + "  11111111");
+                            }
+                        }
+                );
+            } catch (
+                    Exception e) {
+                Log.e(TAG, "hook" + "Exception");
+                XposedBridge.log("" + e);
+            }
+        }
+    }
+
+
+    class SwitchCloudMusicTheme {
+        String TAG = "cloudmusic";
+        Object[] MainDrawer;
+        Class<?> hookclass0, hookclass1, hookclass2;
+
+        public SwitchCloudMusicTheme(Object[] MainDrawer, Class<?> hookclass0, Class<?> hookclass1, Class<?> hookclass2) {
+
+            Log.e(TAG, "赋值 mainDrawer : " + MainDrawer);
+            this.MainDrawer = MainDrawer;
+            this.hookclass0 = hookclass0;
+            this.hookclass1 = hookclass1;
+            this.hookclass2 = hookclass2;
+        }
+
+
+        public void findAndHookMethod(Class<?> tohookclass, String methodName, Class<?> singleArg) {
+
+            Log.e(TAG, "findAndHookMethod: " + MainDrawer[0]);
+            try {
+                XposedHelpers.findAndHookMethod(
+                        tohookclass,
+                        methodName,
+                        singleArg,
+                        new XC_MethodHook() {
+                            @Override
+                            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                                super.afterHookedMethod(param);
+
+                                Log.e(TAG, "开始 afterHookedMethod " + methodName);
+
+                                if (MainDrawer[0] == null) {
+                                    return;
+                                }
+
+                                Log.e(TAG, "开始 afterHookedMethod==: " + MainDrawer[0]);
+
+
+                                boolean isNightMode = isnightMode(context);
+
+                                Log.e(TAG, "afterHookedMethod: " + isNightMode);
+
+                                Object instance_ResourceRouter = callStaticMethod(
+                                        hookclass2,
+                                        "getInstance"
+                                );
+
+                                Log.e(TAG, "afterHookedMethod: " + instance_ResourceRouter);
+
+                                boolean isNightTheme = (boolean) callMethod(
+                                        instance_ResourceRouter,
+                                        "isNightTheme"
+
+                                );
+
+                                Log.e(TAG, "afterHookedMethod: " + isNightTheme);
+
+                                if (isNightTheme != isNightMode) {
+                                    View drawerThemeMode = (View) getObjectField(
+                                            MainDrawer[0],
+                                            "drawerThemeMode"
+                                    );
+                                    Log.e(TAG, "afterHookedMethod: " + drawerThemeMode);
+                                    drawerThemeMode.callOnClick();
+                                }
+
+                            }
+                        }
+
+                );
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
