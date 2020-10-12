@@ -22,4 +22,5 @@ public class Constants {
     public static final String PACKAGE_NAME_QUARK = "com.quark.browser";
     public static final String PACKAGE_NAME_WEIBO_IN = "com.weico.international";
     public static final String PACKAGE_NAME_CLOUDMUSIC = "com.netease.cloudmusic";
+    public static final String PACKAGE_NAME_QIDIAN = "com.qidian.QDReader";
 }

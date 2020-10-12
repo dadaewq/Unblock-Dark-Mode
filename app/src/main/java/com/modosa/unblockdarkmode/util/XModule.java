@@ -1,6 +1,7 @@
 package com.modosa.unblockdarkmode.util;
 
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -9,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import androidx.annotation.Keep;
 
@@ -37,6 +39,13 @@ import static de.robv.android.xposed.XposedHelpers.getStaticIntField;
 import static de.robv.android.xposed.XposedHelpers.setStaticBooleanField;
 import static de.robv.android.xposed.XposedHelpers.setStaticIntField;
 import static de.robv.android.xposed.XposedHelpers.setStaticObjectField;
+
+interface CallHook {
+    /**
+     * CallHook 接口
+     */
+    void call();
+}
 
 /**
  * @author dadaewq
@@ -69,6 +78,9 @@ public class XModule implements IXposedHookLoadPackage {
                 break;
             case Constants.PACKAGE_NAME_WEIBO_IN:
                 initPreferencesWithCallHook(this::hookWeiboIn);
+                break;
+            case Constants.PACKAGE_NAME_QIDIAN:
+                initPreferencesWithCallHook(this::hookQiDian);
                 break;
             case Constants.PACKAGE_NAME_MOBILEQQ:
                 initPreferencesWithCallHook(() -> hookCustomTencent("x_mobileqq"));
@@ -273,7 +285,7 @@ public class XModule implements IXposedHookLoadPackage {
         }
     }
 
-    private void weiboChangeTheme(Class MainFragmentActivityClass, Object instance) {
+    private void weiboChangeTheme(Class<?> MainFragmentActivityClass, Object instance) {
         try {
             boolean isNightMode = isnightMode(context);
 
@@ -447,6 +459,429 @@ public class XModule implements IXposedHookLoadPackage {
 
             }
         }
+    }
+
+
+    private void hookQiDian() {
+        if (sharedPreferences != null && sharedPreferences.getBoolean("x_qidian", true)) {
+
+            Log.e("qidian", "\n\n 开始 hookqidian");
+
+            ClassLoader cl = context.getClassLoader();
+            Class<?> hookclass0, hookclass1, hookclass2;
+
+            String clazzName = "com.qidian.QDReader.core.config.QDConfig";
+
+            hookclass0 = loadClass(cl, clazzName);
+
+            clazzName = "com.qidian.QDReader.ui.activity.BaseActivity";
+            hookclass1 = loadClass(cl, clazzName);
+
+            clazzName = "com.qidian.QDReader.comic.ui.QDComicReadingBaseActivity";
+            hookclass2 = loadClass(cl, clazzName);
+
+//            clazzName = "com.qidian.QDReader.comic.ui.QDComicReadingVerticalActivity";
+//            hookclass3 = loadClass(cl, clazzName);
+//
+//            clazzName = "com.qidian.QDReader.comic.ui.QDComicReadingLandActivity";
+//            hookclass4 = loadClass(cl, clazzName);
+
+            try {
+
+                Object[] BaseActivity = new Object[]{null};
+                findAndHookMethod(
+                        hookclass1,
+                        "onCreate",
+                        Bundle.class,
+                        new XC_MethodHook() {
+                            @Override
+                            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                                super.afterHookedMethod(param);
+
+                                Log.e("qidian", "onCreate 0000000000" + param.thisObject);
+
+                                BaseActivity[0] = param.thisObject;
+                                qidianChangeTheme(hookclass0, BaseActivity);
+
+                                Log.e("qidian", "onCreate 11111111111" + param.thisObject);
+                            }
+                        }
+                );
+
+                findAndHookMethod(
+                        Application.class,
+                        "onConfigurationChanged",
+                        Configuration.class,
+                        new XC_MethodHook() {
+                            @Override
+                            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                                super.afterHookedMethod(param);
+
+                                Log.e("qidian", "onConfigurationChanged 0000000000");
+
+                                qidianChangeTheme(hookclass0, BaseActivity);
+
+                                Log.e("qidian", "onConfigurationChanged  11111111");
+                            }
+                        }
+                );
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    private void qidianChangeTheme(Class<?> QDConfig, Object[] BaseActivity) {
+        String TAG = "qidianChangeTheme";
+        if (BaseActivity[0] == null) {
+            return;
+        }
+
+        try {
+            boolean isNightMode = isnightMode(context);
+
+
+            Object instance_QDConfig = callStaticMethod(
+                    QDConfig,
+                    "getInstance"
+            );
+
+            String SettingIsNight = (String) callMethod(
+                    instance_QDConfig,
+                    "GetSetting",
+                    "SettingIsNight",
+                    "0"
+            );
+
+
+            boolean isNightTheme = "1".equals(SettingIsNight);
+
+            Log.e("qidian", "isNightTheme: " + isNightTheme);
+            if (isNightMode != isNightTheme) {
+                Log.e(TAG, "qidianChangeTheme: " + BaseActivity[0]);
+                if (BaseActivity[0] != null) {
+                    callMethod(
+                            BaseActivity[0],
+                            "setNightDayTheme"
+                    );
+                }
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "qidianChangeTheme: Exception" + e);
+        }
+
+
+    }
+
+//    private void hookQiDian1() {
+//        if (sharedPreferences != null && sharedPreferences.getBoolean("x_qidian", true)) {
+//
+//            Log.e("qidian", "\n\n 开始 hookqidian");
+//
+//            ClassLoader cl = context.getClassLoader();
+//            Class<?> hookclass0, hookclass1;
+//
+//            String clazzName = "com.qidian.QDReader.ui.fragment.QDUserAccountFragment";
+//            hookclass0 = loadClass(cl, clazzName);
+//
+//            clazzName = "com.qidian.QDReader.core.config.QDConfig";
+//            hookclass1 = loadClass(cl, clazzName);
+//
+//
+//            Object[] frag = new Object[]{null};
+//            findAndHookMethod(
+//                    hookclass0,
+//                    "onCreate",
+//                    Bundle.class,
+//                    new XC_MethodHook() {
+//                        @Override
+//                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+//                            super.afterHookedMethod(param);
+//
+//                            Log.e("qidian", "onResume 0000000000" + param.thisObject);
+//
+//                            frag[0] = param.thisObject;
+//                            qidianChangeTheme(hookclass0, hookclass1, param.thisObject);
+//
+//                            Log.e("qidian", "onResume 11111111111" + param.thisObject);
+//                        }
+//                    }
+//            );
+//
+//
+//            findAndHookMethod(
+//                    hookclass0,
+//                    "onViewInject",
+//                    View.class,
+//                    new XC_MethodHook() {
+//                        @Override
+//                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+//                            super.afterHookedMethod(param);
+//
+//                            Log.e("qidian", "onResume 0000000000" + param.thisObject);
+//
+//                            View view = (View) param.args[0];
+//                            Log.e("qidian", "onResume 0000000000" + view);
+//
+//                            qidianChangeTheme(hookclass0, hookclass1, view, frag[0]);
+//
+//                            Log.e("qidian", "onResume 11111111111" + param.thisObject);
+//                        }
+//                    }
+//            );
+//
+//            if (true) return;
+//            try {
+//                findAndHookMethod(
+//                        hookclass0,
+//                        "onResume",
+//                        new XC_MethodHook() {
+//                            @Override
+//                            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+//                                super.afterHookedMethod(param);
+//
+//                                Log.e("qidian", "onResume 0000000000" + param.thisObject);
+//
+//                                qidianChangeTheme(hookclass0, hookclass1, param.thisObject);
+//
+//                                Log.e("qidian", "onResume 11111111111" + param.thisObject);
+//                            }
+//                        }
+//                );
+//
+//
+//                findAndHookMethod(
+//                        hookclass0,
+//                        "onConfigurationChanged",
+//                        Configuration.class,
+//                        new XC_MethodHook() {
+//                            @Override
+//                            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+//                                super.afterHookedMethod(param);
+//
+//                                Log.e("qidian", "onConfigurationChanged 0000000000");
+//
+//                                qidianChangeTheme(hookclass0, hookclass1, param.thisObject);
+//
+//                                Log.e("qidian", "onConfigurationChanged  11111111");
+//                            }
+//                        }
+//                );
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//
+//        }
+//    }
+
+    private void qidianChangeTheme(Class<?> QDUserAccountFragment, Class<?> QDConfig, View view, Object instance) {
+        String TAG = "qidian";
+
+        if (instance == null) {
+            return;
+        }
+        Log.e(TAG, "qidianChangeTheme: instance" + instance);
+        try {
+            boolean isNightMode = isnightMode(context);
+
+
+            Object instance_QDConfig = callStaticMethod(
+                    QDConfig,
+                    "getInstance"
+            );
+
+            String SettingIsNight = (String) callMethod(
+                    instance_QDConfig,
+                    "GetSetting",
+                    "SettingIsNight",
+                    "0"
+            );
+
+
+            boolean isNightTheme = "1".equals(SettingIsNight);
+
+            Log.e("qidian", "isNightTheme: " + isNightTheme);
+            if (isNightMode != isNightTheme) {
+
+                Field field = QDUserAccountFragment.getDeclaredField("mLayoutThemeSwitch");
+
+                field.setAccessible(true);
+
+                Log.e("qidian", "qidianChangeTheme: view " + view);
+
+
+//                View linearLayout = new LinearLayout(context);
+
+//                Log.e("qidian", "qidianChangeTheme:mLayoutThemeSwitch " + mLayoutThemeSwitch);
+
+//                ((LinearLayout) mLayoutThemeSwitch).callOnClick();
+
+//                Activity activity = (Activity) callMethod(
+//                        view,
+//                        "getActivity"
+//                );
+//
+                Log.e("qidian", "qidianChangeTheme:activity " + context);
+                int viewId = context.getResources().getIdentifier("themeSwitch", "id", context.getPackageName());
+
+                Log.e("qidian", "qidianChangeTheme:viewId " + viewId);
+
+                LinearLayout mLayoutThemeSwitch = view.findViewById(viewId);
+
+                View view1 = new View(context);
+                view1.setId(viewId);
+//                 View view=activity.findViewById(viewId);
+                Log.e("qidian", "qidianChangeTheme:linearLayout000 " + mLayoutThemeSwitch);
+                callMethod(
+                        instance,
+                        "onClick",
+                        view1
+                );
+
+                Log.e("qidian", "qidianChangeTheme:linearLayout 111" + mLayoutThemeSwitch.getId());
+            }
+
+
+//            try {
+//                Field lastThemeChange = findFieldIfExists(MainFragmentActivityClass, "lastThemeChange");
+//                if (lastThemeChange != null) {
+//                    lastThemeChange.setLong(null, 0);
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//
+//            //MenuItem
+//            Object navChangeTheme = getObjectField(
+//                    view,
+//                    "navChangeTheme"
+//            );
+//            //SwitchCompat
+//            Object actionView = callMethod(
+//                    navChangeTheme,
+//                    "getActionView"
+//            );
+//
+////            androidx.appcompat.widget.SwitchCompat cannot be cast to androidx.
+////            appcompat.widget.SwitchCompat
+////                    ((SwitchCompat) actionView).setChecked(isNightMode);
+//
+//            callMethod(
+//                    actionView,
+//                    "setChecked",
+//                    isNightMode
+//            );
+
+        } catch (Exception e) {
+            Log.e("qidian", "Exception onConfigurationChanged  \n" + e);
+        }
+
+    }
+
+    private void qidianChangeTheme(Class<?> QDUserAccountFragment, Class<?> QDConfig, Object instance) {
+        String TAG = "qidian";
+
+
+        try {
+            boolean isNightMode = isnightMode(context);
+
+
+            Object instance_QDConfig = callStaticMethod(
+                    QDConfig,
+                    "getInstance"
+            );
+
+            String SettingIsNight = (String) callMethod(
+                    instance_QDConfig,
+                    "GetSetting",
+                    "SettingIsNight",
+                    "0"
+            );
+
+
+            boolean isNightTheme = "1".equals(SettingIsNight);
+
+            Log.e("qidian", "isNightTheme: " + isNightTheme);
+            if (isNightMode != isNightTheme) {
+
+                Field field = QDUserAccountFragment.getDeclaredField("mLayoutThemeSwitch");
+
+                field.setAccessible(true);
+
+                Log.e("qidian", "qidianChangeTheme: instance " + instance);
+
+//                Object mLayoutThemeSwitch = getObjectField(
+//                        callMethod(
+//                                instance,
+//                                "getView"
+//                        ),
+//                        "mLayoutThemeSwitch"
+//                );
+
+                View linearLayout = new LinearLayout(context);
+
+//                Log.e("qidian", "qidianChangeTheme:mLayoutThemeSwitch " + mLayoutThemeSwitch);
+
+//                ((LinearLayout) mLayoutThemeSwitch).callOnClick();
+
+                Activity activity = (Activity) callMethod(
+                        instance,
+                        "getActivity"
+                );
+                Log.e("qidian", "qidianChangeTheme:activity " + activity);
+                int viewId = activity.getResources().getIdentifier("themeSwitch", "id", context.getPackageName());
+
+                Log.e("qidian", "qidianChangeTheme:viewId " + viewId);
+
+                linearLayout.setId(viewId);
+//                 View view=activity.findViewById(viewId);
+                Log.e("qidian", "qidianChangeTheme:linearLayout000 " + linearLayout.getId());
+                callMethod(
+                        instance,
+                        "OnClick",
+                        linearLayout
+                );
+
+                Log.e("qidian", "qidianChangeTheme:linearLayout 111" + linearLayout.getId());
+            }
+
+
+//            try {
+//                Field lastThemeChange = findFieldIfExists(MainFragmentActivityClass, "lastThemeChange");
+//                if (lastThemeChange != null) {
+//                    lastThemeChange.setLong(null, 0);
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//
+//            //MenuItem
+//            Object navChangeTheme = getObjectField(
+//                    instance,
+//                    "navChangeTheme"
+//            );
+//            //SwitchCompat
+//            Object actionView = callMethod(
+//                    navChangeTheme,
+//                    "getActionView"
+//            );
+//
+////            androidx.appcompat.widget.SwitchCompat cannot be cast to androidx.
+////            appcompat.widget.SwitchCompat
+////                    ((SwitchCompat) actionView).setChecked(isNightMode);
+//
+//            callMethod(
+//                    actionView,
+//                    "setChecked",
+//                    isNightMode
+//            );
+
+        } catch (Exception e) {
+            Log.e("qidian", "Exception onConfigurationChanged  \n" + e);
+        }
+
     }
 
 
@@ -1268,10 +1703,10 @@ public class XModule implements IXposedHookLoadPackage {
         try {
             hookclass = cl.loadClass(clazzName);
         } catch (Exception e) {
-            Log.e("MutiDex ", "weibo_in  MutiDex 寻找" + clazzName + "失败" + e);
+            Log.e("MutiDex ", "MutiDex 寻找" + clazzName + "失败" + e);
             return null;
         }
-        Log.e("MutiDex ", "weibo_in  MutiDex 寻找" + clazzName + "成功");
+        Log.e("MutiDex ", "MutiDex 寻找" + clazzName + "成功");
         return hookclass;
     }
 
@@ -1475,13 +1910,12 @@ public class XModule implements IXposedHookLoadPackage {
             Log.e(TAG, "MutiDex 寻找三个class 失败");
         }
 
-        SharedPreferences.Editor editor = context.getSharedPreferences("settings", 0).edit();
+//        SharedPreferences.Editor editor = context.getSharedPreferences("settings", 0).edit();
 
 
         switchQuarkOrUC switchQuarkOrUC = new switchQuarkOrUC(
                 context,
                 TAG,
-                editor,
                 hookclass0, hookclass1,
                 splits0, splits1
         );
@@ -1640,24 +2074,17 @@ public class XModule implements IXposedHookLoadPackage {
         }
     }
 
-    interface CallHook {
-        /**
-         * CallHook 接口
-         */
-        void call();
-    }
-
     class switchQuarkOrUC {
         Context context;
         String TAG;
+        SharedPreferences sharedPreferences;
         SharedPreferences.Editor editor;
         Class<?> hookclass0, hookclass1;
         String[] splits0, splits1;
 
-        public switchQuarkOrUC(Context context, String TAG, SharedPreferences.Editor editor, Class<?> hookclass0, Class<?> hookclass1, String[] splits0, String[] splits1) {
+        public switchQuarkOrUC(Context context, String TAG, Class<?> hookclass0, Class<?> hookclass1, String[] splits0, String[] splits1) {
             this.context = context;
             this.TAG = TAG;
-            this.editor = editor;
             this.hookclass0 = hookclass0;
             this.hookclass1 = hookclass1;
             this.splits0 = splits0;
@@ -1677,26 +2104,24 @@ public class XModule implements IXposedHookLoadPackage {
 
                                 Log.e(TAG, methodName + " 0000000000");
 
+                                sharedPreferences = context.getSharedPreferences("settings", 0);
+                                editor = sharedPreferences.edit();
                                 try {
-                                    SharedPreferences.Editor editor = context.getSharedPreferences("settings", 0).edit();
-                                    Log.e(TAG, "isSettingnightMode===: 0get " + context.getSharedPreferences("settings", 0).getBoolean("setting_night_mode", false));
+
+                                    Log.e(TAG, "isSettingnightMode===: 0get " + sharedPreferences.getBoolean("setting_night_mode", false));
                                     boolean isNightMode = isnightMode(context);
                                     Log.e(TAG, "isnightMode: " + isNightMode);
 
                                     editor.putBoolean("setting_night_mode", isNightMode).apply();
 
 
-                                    Log.e(TAG, "isSettingnightMode===: 2get" + context.getSharedPreferences("settings", 0).getBoolean("setting_night_mode", false));
+                                    Log.e(TAG, "isSettingnightMode===: 2get" + sharedPreferences.getBoolean("setting_night_mode", false));
 
 
                                     Object instance_switchDark = callStaticMethod(
                                             hookclass0,
                                             splits0[1]
                                     );
-
-//                                    Log.e(TAG, "Exception  000 \n" + instance_switchDark);
-//                                    Log.e(TAG, "Exception  111 \n" + splits0[2]);
-//                                    Log.e(TAG, "Exception  222 \n" + getStaticIntField(hookclass1, splits1[1]));
 
                                     try {
                                         callMethod(
@@ -1708,7 +2133,7 @@ public class XModule implements IXposedHookLoadPackage {
                                         Log.e(TAG, "callMethod   " + e);
                                     }
 
-                                    Log.e(TAG, "isSettingnightMode===: 3get" + context.getSharedPreferences("settings", 0).getBoolean("setting_night_mode", false));
+                                    Log.e(TAG, "isSettingnightMode===: 3get" + sharedPreferences.getBoolean("setting_night_mode", false));
 
                                 } catch (Exception e) {
                                     Log.e(TAG, "Exception" + methodName + "  \n" + e);

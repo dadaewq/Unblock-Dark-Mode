@@ -3,19 +3,15 @@
     package="com.modosa.unblockdarkmode">
 
     <queries>
-        <package android:name="com.coolapk.market" />
-        <package android:name="com.alibaba.android.rimet" />
-        <package android:name="com.alibaba.dingtalk.global" />
         <package android:name="com.tencent.mobileqq" />
         <package android:name="com.tencent.mm" />
         <package android:name="com.iflytek.inputmethod" />
         <package android:name="com.caij.see" />
         <package android:name="com.google.android.inputmethod.latin" />
-        <package android:name="com.jingdong.app.mall" />
         <package android:name="tv.danmaku.bili" />
         <package android:name="com.bilibili.app.in" />
         <package android:name="com.quark.browser" />
-        <package android:name="com.quark.browser" />
+        <package android:name="com.qidian.QDReader" />
     </queries>
 
     <uses-permission android:name="android.permission.INTERNET" />
